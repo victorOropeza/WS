@@ -16,7 +16,7 @@ public class CrearArchivo
         PrintWriter pw = null;
         try
         {
-            fichero = new FileWriter("C:\\Users\\Alex\\Desktop\\data.txt");
+            fichero = new FileWriter("C:\\Users\\Villa\\Desktop\\data.txt");
             pw = new PrintWriter(fichero);
 
             for (int i = 0; i < datos.length; i++)

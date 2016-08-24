@@ -5,6 +5,7 @@ import Modelo.ValidacionDeTelefono;
 import POJOS.PagoDos;
 import POJOS.PagoUno;
 import POJOS.Recargas;
+import java.io.IOException;
 import javax.jws.WebService;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -20,7 +21,7 @@ public class Servicios {
      * Web service operation
      */
     @WebMethod(operationName = "Recarga")
-    public String Recarga(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Phone") String Phone, @WebParam(name = "SubtotalAmount") String SubtotalAmount) {
+    public String Recarga(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Phone") String Phone, @WebParam(name = "SubtotalAmount") String SubtotalAmount) throws IOException {
         
         ValidacionDeTelefono validar=new ValidacionDeTelefono();
         if(validar.VerificarNumero(Phone.substring(1,Phone.length()-1)))
@@ -32,6 +33,13 @@ public class Servicios {
             recarga.setSubtotalAmount(SubtotalAmount.substring(1,SubtotalAmount.length()-1));
             recarga.setEstatus("Pendiente");
             recarga.setFolio("N/A");
+            
+             
+            System.out.println(ConceptCode);
+            System.out.println(Phone);
+            System.out.println(SubtotalAmount);
+            
+            
             
             Controller rec=new Controller(recarga);
             

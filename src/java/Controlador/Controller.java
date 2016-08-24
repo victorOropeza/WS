@@ -7,6 +7,13 @@ import Modelo.RecargasDAO;
 import POJOS.PagoDos;
 import POJOS.PagoUno;
 import POJOS.Recargas;
+import com.epagoinc.client.ApiClient;
+import com.epagoinc.client.Globals;
+import com.epagoinc.clientswitchtransactionservicev2.ApplyTransactionResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.util.Properties;
 
 
 public class Controller 
@@ -33,7 +40,7 @@ public class Controller
     }
     
     
-    public String Recarga()
+    public String Recarga() throws IOException
     {
         return  NuevaRecarga(r);
     }
@@ -47,7 +54,7 @@ public class Controller
     }
     
     
-    private String NuevaRecarga(Recargas recarga)
+    private String NuevaRecarga(Recargas recarga) throws IOException
     {
         String mensaje;
         RecargasDAO r=new RecargasDAO();
@@ -58,17 +65,34 @@ public class Controller
         rec[1]=recarga.getPhone();
         rec[2]=recarga.getSubtotalAmount();
         
-        CrearArchivo ca=new CrearArchivo();
-        if(ca.CrearArchivo(rec))
-        {
-            //Metodo
-            mensaje= r.IngresarRecarga(recarga);
-        }
-        else
-        {
-            mensaje="Error de transaccion";
-        }
+       
         
+        
+            BigDecimal subTotalAmount = new BigDecimal(recarga.getSubtotalAmount());
+            String conceptCode = recarga.getConceptCode();
+            String account = recarga.getPhone();
+            
+            System.out.println(subTotalAmount);
+            System.out.println(conceptCode);
+            System.out.println(account);
+            
+            Globals.ClientCatalogQueryAddress="https://c01.epagoonline.com/mx/AgentService2-R3/ClientCatalogQueryService.svc";
+            Globals.ClientSwitchDepositNotificationServiceAddress="https://c01.epagoonline.com/mx/AgentService2-R3/ClientSwitchDepositNotificationService.svc";
+            Globals.ClientSwitchTransactionServiceAddress="https://c01.epagoonline.com/mx/AgentService2-R3/ClientSwitchTransactionServiceV2.svc";
+            Globals.ClientSwitchAccountBalanceServiceAddress="https://c01.epagoonline.com/mx/AgentService2-R3/ClientSwitchAccountBalanceService.svc";
+            
+            System.out.println(subTotalAmount);
+            System.out.println(conceptCode);
+            System.out.println(account);
+            
+            ApiClient client = new ApiClient();
+
+            ApplyTransactionResponse t = client.executeTransaction(conceptCode, account,subTotalAmount ,null);
+            
+            
+            
+            mensaje=t.getClientSwitchTransactionId()+" - "+t.getStatusCode();
+            
         return mensaje;
     }
     private String NuevoPagoUno(PagoUno pagouno)
