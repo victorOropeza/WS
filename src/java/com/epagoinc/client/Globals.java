@@ -57,6 +57,12 @@ public class Globals {
         auth.setTerminalId("01000001");
         auth.setTerminalDescription("Switch Concentrador: Cadena Comercial");
         auth.setCashierName("G-POS1");
+        
+        Globals.ClientCatalogQueryAddress = "https://c01.epagoonline.com/mx/AgentService2-R3/ClientCatalogQueryService.svc";
+        Globals.ClientSwitchDepositNotificationServiceAddress = "https://c01.epagoonline.com/mx/AgentService2-R3/ClientSwitchDepositNotificationService.svc";
+        Globals.ClientSwitchTransactionServiceAddress = "https://c01.epagoonline.com/mx/AgentService2-R3/ClientSwitchTransactionServiceV2.svc";
+        Globals.ClientSwitchAccountBalanceServiceAddress = "https://c01.epagoonline.com/mx/AgentService2-R3/ClientSwitchAccountBalanceService.svc";
+
     }
 
     public static String ClientCatalogQueryAddress;

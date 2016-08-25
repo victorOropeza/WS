@@ -17,42 +17,30 @@ import javax.jws.WebParam;
 @WebService(serviceName = "Servicios")
 public class Servicios {
 
-     /**
+    /**
      * Web service operation
      */
     @WebMethod(operationName = "Recarga")
     public String Recarga(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Phone") String Phone, @WebParam(name = "SubtotalAmount") String SubtotalAmount) throws IOException {
-        
-        ValidacionDeTelefono validar=new ValidacionDeTelefono();
-        if(validar.VerificarNumero(Phone.substring(1,Phone.length()-1)))
-        {
-            Recargas recarga=new Recargas();
-            //recarga.setId();
-            recarga.setConceptCode(ConceptCode.substring(1,ConceptCode.length()-1));
-            recarga.setPhone(Phone.substring(1,Phone.length()-1));
-            recarga.setSubtotalAmount(SubtotalAmount.substring(1,SubtotalAmount.length()-1));
+
+        ValidacionDeTelefono validar = new ValidacionDeTelefono();
+        if (validar.VerificarNumero(Phone.substring(1, Phone.length() - 1))) {
+
+            Recargas recarga = new Recargas();
+            recarga.setConceptCode(ConceptCode.substring(1, ConceptCode.length() - 1));
+            recarga.setPhone(Phone.substring(1, Phone.length() - 1));
+            recarga.setSubtotalAmount(SubtotalAmount.substring(1, SubtotalAmount.length() - 1));
             recarga.setEstatus("Pendiente");
             recarga.setFolio("N/A");
-            
-             
-            System.out.println(ConceptCode);
-            System.out.println(Phone);
-            System.out.println(SubtotalAmount);
-            
-            
-            
-            Controller rec=new Controller(recarga);
-            
+
+            Controller rec = new Controller(recarga);
+
             return rec.Recarga();
-            
+
+        } else {
+            return "Telefono invalido " + Phone.substring(1, Phone.length() - 1);
         }
-        else
-        {
-            return "Telefono invalido "+ Phone.substring(1,Phone.length()-1);
-        }
-        
-        
-        
+
     }
 
     /**
@@ -60,20 +48,17 @@ public class Servicios {
      */
     @WebMethod(operationName = "PagoUno")
     public String PagoUno(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account, @WebParam(name = "SubtotalAmount") String SubtotalAmount) {
-        
-        
-        PagoUno pu=new PagoUno();
-        pu.setId(0);
+
+        PagoUno pu = new PagoUno();
         pu.setConceptCode(ConceptCode);
         pu.setAccount(Account);
         pu.setSubtotalAmount(SubtotalAmount);
         pu.setEstatus("Pendiente");
         pu.setFolio("N/A");
-        
-        Controller c=new Controller(pu);
-        c.PagoUno();
-        
-        return null;
+
+        Controller c = new Controller(pu);
+
+        return c.PagoUno();
     }
 
     /**
@@ -81,20 +66,18 @@ public class Servicios {
      */
     @WebMethod(operationName = "PagoDos")
     public String PagoDos(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account, @WebParam(name = "SubtotalAmount") String SubtotalAmount, @WebParam(name = "DV") String DV) {
-        
-        PagoDos pd=new PagoDos();
-        pd.setId(0);
+
+        PagoDos pd = new PagoDos();
         pd.setConceptCode(ConceptCode);
-        pd.setAccount(Account);
+        pd.setPhone(Account);
         pd.setSubtotalAmount(SubtotalAmount);
         pd.setDv(DV);
         pd.setEstatus("Pendiente");
         pd.setFolio("N/A");
-        
-        Controller c=new Controller(pd);
-        c.PagoDos();
-        
-        return null;
+
+        Controller c = new Controller(pd);
+
+        return c.PagoDos();
     }
 
     /**
@@ -102,7 +85,9 @@ public class Servicios {
      */
     @WebMethod(operationName = "ConsultaServicios")
     public String ConsultaServicios(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account) {
-        //TODO write your implementation code here:
-        return null;
+
+        Controller consulta = new Controller();
+        consulta.Consulta(ConceptCode, Account);
+        return consulta.Consulta(ConceptCode, Account);
     }
 }

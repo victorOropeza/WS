@@ -1,5 +1,5 @@
 package POJOS;
-// Generated 22-ago-2016 17:30:39 by Hibernate Tools 3.6.0
+// Generated 25-ago-2016 12:10:21 by Hibernate Tools 3.6.0
 
 
 
@@ -13,27 +13,24 @@ public class PagoUno  implements java.io.Serializable {
      private String conceptCode;
      private String account;
      private String subtotalAmount;
-     private String estatus;
      private String folio;
+     private String estatus;
 
     public PagoUno() {
     }
 
 	
-    public PagoUno(int id, String conceptCode, String account, String subtotalAmount, String estatus) {
+    public PagoUno(int id, String conceptCode) {
         this.id = id;
         this.conceptCode = conceptCode;
-        this.account = account;
-        this.subtotalAmount = subtotalAmount;
-        this.estatus = estatus;
     }
-    public PagoUno(int id, String conceptCode, String account, String subtotalAmount, String estatus, String folio) {
+    public PagoUno(int id, String conceptCode, String account, String subtotalAmount, String folio, String estatus) {
        this.id = id;
        this.conceptCode = conceptCode;
        this.account = account;
        this.subtotalAmount = subtotalAmount;
-       this.estatus = estatus;
        this.folio = folio;
+       this.estatus = estatus;
     }
    
     public int getId() {
@@ -64,19 +61,19 @@ public class PagoUno  implements java.io.Serializable {
     public void setSubtotalAmount(String subtotalAmount) {
         this.subtotalAmount = subtotalAmount;
     }
-    public String getEstatus() {
-        return this.estatus;
-    }
-    
-    public void setEstatus(String estatus) {
-        this.estatus = estatus;
-    }
     public String getFolio() {
         return this.folio;
     }
     
     public void setFolio(String folio) {
         this.folio = folio;
+    }
+    public String getEstatus() {
+        return this.estatus;
+    }
+    
+    public void setEstatus(String estatus) {
+        this.estatus = estatus;
     }
 
 

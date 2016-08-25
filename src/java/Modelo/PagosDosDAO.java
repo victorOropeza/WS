@@ -1,6 +1,5 @@
 package Modelo;
 
-import Modelo.HibernateUtil;
 import POJOS.PagoDos;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -12,8 +11,9 @@ public class PagosDosDAO {
     Session sesion= null;
     Transaction tx=null;
     //Metodo para almacenar los datos
-    public void IngresarPagoDos(PagoDos pd)
+    public String IngresarPagoDos(PagoDos pd)
     {
+        String x;
         
         try
         {
@@ -21,6 +21,7 @@ public class PagosDosDAO {
             sesion=sf.openSession();
             tx=sesion.beginTransaction();
             sesion.save(pd);
+            x=String.valueOf(pd.getId());
             tx.commit();
             sesion.close();
         }
@@ -30,7 +31,33 @@ public class PagosDosDAO {
             
             throw new RuntimeException("No se realizó el pago");
         }
-        
+        return x;
+    }
+    
+    public void Actualizar(int id,String Folio,String Estatus)
+    {
+        try
+        {
+            
+            PagoDos r = new PagoDos();
+            r.setId(id);
+            r.setFolio(Folio);
+            r.setEstatus(Estatus);
+            
+            sf= HibernateUtil.getSessionFactory();
+            sesion=sf.openSession();
+            sesion.beginTransaction();
+            sesion.update(r);
+            sesion.getTransaction().commit();
+            sesion.close();
+            
+        }
+        catch(Exception ex)
+        {
+            tx.rollback();
+            
+            throw new RuntimeException("No se realizó la actualización");
+        }
     }
     
     

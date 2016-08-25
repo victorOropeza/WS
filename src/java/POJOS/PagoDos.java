@@ -1,5 +1,5 @@
 package POJOS;
-// Generated 22-ago-2016 17:30:39 by Hibernate Tools 3.6.0
+// Generated 25-ago-2016 12:10:21 by Hibernate Tools 3.6.0
 
 
 
@@ -11,32 +11,28 @@ public class PagoDos  implements java.io.Serializable {
 
      private int id;
      private String conceptCode;
-     private String account;
+     private String phone;
      private String subtotalAmount;
      private String dv;
-     private String estatus;
      private String folio;
+     private String estatus;
 
     public PagoDos() {
     }
 
 	
-    public PagoDos(int id, String conceptCode, String account, String subtotalAmount, String dv, String estatus) {
+    public PagoDos(int id, String conceptCode) {
         this.id = id;
         this.conceptCode = conceptCode;
-        this.account = account;
-        this.subtotalAmount = subtotalAmount;
-        this.dv = dv;
-        this.estatus = estatus;
     }
-    public PagoDos(int id, String conceptCode, String account, String subtotalAmount, String dv, String estatus, String folio) {
+    public PagoDos(int id, String conceptCode, String phone, String subtotalAmount, String dv, String folio, String estatus) {
        this.id = id;
        this.conceptCode = conceptCode;
-       this.account = account;
+       this.phone = phone;
        this.subtotalAmount = subtotalAmount;
        this.dv = dv;
-       this.estatus = estatus;
        this.folio = folio;
+       this.estatus = estatus;
     }
    
     public int getId() {
@@ -53,12 +49,12 @@ public class PagoDos  implements java.io.Serializable {
     public void setConceptCode(String conceptCode) {
         this.conceptCode = conceptCode;
     }
-    public String getAccount() {
-        return this.account;
+    public String getPhone() {
+        return this.phone;
     }
     
-    public void setAccount(String account) {
-        this.account = account;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
     public String getSubtotalAmount() {
         return this.subtotalAmount;
@@ -74,19 +70,19 @@ public class PagoDos  implements java.io.Serializable {
     public void setDv(String dv) {
         this.dv = dv;
     }
-    public String getEstatus() {
-        return this.estatus;
-    }
-    
-    public void setEstatus(String estatus) {
-        this.estatus = estatus;
-    }
     public String getFolio() {
         return this.folio;
     }
     
     public void setFolio(String folio) {
         this.folio = folio;
+    }
+    public String getEstatus() {
+        return this.estatus;
+    }
+    
+    public void setEstatus(String estatus) {
+        this.estatus = estatus;
     }
 
 

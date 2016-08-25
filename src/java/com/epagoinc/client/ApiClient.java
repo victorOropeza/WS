@@ -254,6 +254,12 @@ public class ApiClient {
             }
             
         }
+        
+        else{
+            response2 = new ApplyTransactionResponse();
+            response2.setStatusCode(response.getStatusCode());
+            response2.setStatusMessage(response.getStatusMessage());
+        }
         return response2;
     }
 }
