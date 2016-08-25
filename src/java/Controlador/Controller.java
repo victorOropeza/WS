@@ -59,7 +59,7 @@ public class Controller {
         BigDecimal subTotalAmount = new BigDecimal(recarga.getSubtotalAmount());
         String conceptCode = recarga.getConceptCode();
         String account = recarga.getPhone();
-
+        
         try {
             //Creamos objeto tipo recarga con los datos del WS
             RecargasDAO RDAO = new RecargasDAO();
@@ -108,14 +108,13 @@ public class Controller {
         int Folio = 0;
         ApplyTransactionResponse t = null;
         BigDecimal subTotalAmount = new BigDecimal(pagouno.getSubtotalAmount());
-        String conceptCode = (String) pagouno.getConceptCode();
-        String account = (String) pagouno.getAccount();
+        String conceptCode = pagouno.getConceptCode();
+        String account =  pagouno.getAccount();
 
         try {
             //Creamos objeto tipo recarga con los datos del WS
-            PagoUno pu = new PagoUno();
             PagosUnoDAO PuDAO = new PagosUnoDAO();
-            Folio = Integer.valueOf(PuDAO.IngresarPagoUno(pu));
+            Folio = Integer.valueOf(PuDAO.IngresarPagoUno(pagouno));
         } catch (Exception e0) {
             mensaje = "Error de almacenamiento";
         }
@@ -129,9 +128,9 @@ public class Controller {
             //Realizamos la actualización del folio y el estatus
             PagosUnoDAO PuDAO = new PagosUnoDAO();
             if (t.getStatusCode() == 0) {
-                PuDAO.Actualizar(Folio, t.getClientSwitchTransactionId(), "Exito");
+                PuDAO.Actualizar(pagouno,Folio, t.getClientSwitchTransactionId(), "Exito");
             } else {
-                PuDAO.Actualizar(Folio, t.getClientSwitchTransactionId(), "Error: " + t.getStatusCode());
+                PuDAO.Actualizar(pagouno,Folio, t.getClientSwitchTransactionId(), "Error: " + t.getStatusCode());
             }
 
             mensaje = "Folio: " + t.getClientSwitchTransactionId() + "  Estatus" + t.getStatusCode();
@@ -151,15 +150,15 @@ public class Controller {
         int Folio = 0;
         ApplyTransactionResponse t = null;
         BigDecimal subTotalAmount = new BigDecimal(pagodos.getSubtotalAmount());
-        String conceptCode = (String) pagodos.getConceptCode();
-        String account = (String) pagodos.getPhone();
+        String conceptCode =  pagodos.getConceptCode();
+        String account =  pagodos.getPhone();
         String DV = pagodos.getDv();
-
+        System.out.println("********"+conceptCode+"**"+account+"**"+subTotalAmount+"**"+DV+"********");
         try {
             //Creamos objeto tipo recarga con los datos del WS
-            PagoDos pd = new PagoDos();
+            
             PagosDosDAO PdDAO = new PagosDosDAO();
-            Folio = Integer.valueOf(PdDAO.IngresarPagoDos(pd));
+            Folio = Integer.valueOf(PdDAO.IngresarPagoDos(pagodos));
         } catch (Exception e0) {
             mensaje = "Error de almacenamiento";
         }
@@ -174,9 +173,9 @@ public class Controller {
             //Realizamos la actualización del folio y el estatus
             PagosDosDAO PdDAO = new PagosDosDAO();
             if (t.getStatusCode() == 0) {
-                PdDAO.Actualizar(Folio, t.getClientSwitchTransactionId(), "Exito");
+                PdDAO.Actualizar(pagodos,Folio, t.getClientSwitchTransactionId(), "Exito");
             } else {
-                PdDAO.Actualizar(Folio, t.getClientSwitchTransactionId(), "Error: " + t.getStatusCode());
+                PdDAO.Actualizar(pagodos,Folio, t.getClientSwitchTransactionId(), "Error: " + t.getStatusCode());
             }
 
             mensaje = "Folio: " + t.getClientSwitchTransactionId() + "  Estatus" + t.getStatusCode();

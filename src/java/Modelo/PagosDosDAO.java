@@ -34,12 +34,10 @@ public class PagosDosDAO {
         return x;
     }
     
-    public void Actualizar(int id,String Folio,String Estatus)
+    public void Actualizar(PagoDos r,int id,String Folio,String Estatus)
     {
         try
         {
-            
-            PagoDos r = new PagoDos();
             r.setId(id);
             r.setFolio(Folio);
             r.setEstatus(Estatus);

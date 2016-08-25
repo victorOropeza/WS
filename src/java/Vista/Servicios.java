@@ -50,9 +50,9 @@ public class Servicios {
     public String PagoUno(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account, @WebParam(name = "SubtotalAmount") String SubtotalAmount) {
 
         PagoUno pu = new PagoUno();
-        pu.setConceptCode(ConceptCode);
-        pu.setAccount(Account);
-        pu.setSubtotalAmount(SubtotalAmount);
+        pu.setConceptCode(ConceptCode.substring(1, ConceptCode.length() - 1));
+        pu.setAccount(Account.substring(1, Account.length() - 1));
+        pu.setSubtotalAmount(SubtotalAmount.substring(1, SubtotalAmount.length() - 1));
         pu.setEstatus("Pendiente");
         pu.setFolio("N/A");
 
@@ -68,10 +68,10 @@ public class Servicios {
     public String PagoDos(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account, @WebParam(name = "SubtotalAmount") String SubtotalAmount, @WebParam(name = "DV") String DV) {
 
         PagoDos pd = new PagoDos();
-        pd.setConceptCode(ConceptCode);
-        pd.setPhone(Account);
-        pd.setSubtotalAmount(SubtotalAmount);
-        pd.setDv(DV);
+        pd.setConceptCode(ConceptCode.substring(1, ConceptCode.length() - 1));
+        pd.setPhone(Account.substring(1, Account.length() - 1));
+        pd.setSubtotalAmount(SubtotalAmount.substring(1, SubtotalAmount.length() - 1));
+        pd.setDv(DV.substring(1, DV.length() - 1));
         pd.setEstatus("Pendiente");
         pd.setFolio("N/A");
 

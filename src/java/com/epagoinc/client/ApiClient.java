@@ -21,6 +21,7 @@ import com.epagoinc.clientswitchtransactionservicev2.TransactionPaymentMethod;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -195,6 +196,8 @@ public class ApiClient {
                 capturedReferences = new CapturedReference[1];
                 capturedReferences[0] = new CapturedReference("DV", DV);
             }
+            
+            System.out.print("\n\n            ApplyTransaction:" + tran.getClientSwitchTransactionId() + "/" +  clientSwitchTransactionDate + " / " + tran.getEPagoTransactionId() + "/" + tran.getConceptCode() + " / " + tran.getTotalAmount() + " / " + Arrays.toString(paymentBreakdown) + " / " + Arrays.toString(capturedReferences));
 
             //ClientSwitchTransactionServiceV2 client2 = new ClientSwitchTransactionServiceV2(Globals.auth);
             ApplyTransactionRequest request2 = new ApplyTransactionRequest(tran.getClientSwitchTransactionId(), clientSwitchTransactionDate, tran.getEPagoTransactionId(), tran.getConceptCode(), tran.getTotalAmount(), paymentBreakdown, capturedReferences);

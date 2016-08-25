@@ -34,12 +34,12 @@ public class PagosUnoDAO {
         
     }
     
-    public void Actualizar(int id,String Folio,String Estatus)
+    public void Actualizar(PagoUno r,int id,String Folio,String Estatus)
     {
         try
         {
             
-            PagoUno r = new PagoUno();
+            
             r.setId(id);
             r.setFolio(Folio);
             r.setEstatus(Estatus);
