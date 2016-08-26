@@ -5,6 +5,8 @@ import Modelo.ValidacionDeTelefono;
 import POJOS.PagoDos;
 import POJOS.PagoUno;
 import POJOS.Recargas;
+import com.epagoinc.clientswitchaccountbalanceservice.AccountBalanceQueryResponse;
+import com.epagoinc.clientswitchtransactionservicev2.ApplyTransactionResponse;
 import java.io.IOException;
 import javax.jws.WebService;
 import javax.jws.WebMethod;
@@ -21,7 +23,7 @@ public class Servicios {
      * Web service operation
      */
     @WebMethod(operationName = "Recarga")
-    public String Recarga(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Phone") String Phone, @WebParam(name = "SubtotalAmount") String SubtotalAmount) throws IOException {
+    public ApplyTransactionResponse Recarga(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Phone") String Phone, @WebParam(name = "SubtotalAmount") String SubtotalAmount) throws IOException {
 
         ValidacionDeTelefono validar = new ValidacionDeTelefono();
         if (validar.VerificarNumero(Phone.substring(1, Phone.length() - 1))) {
@@ -38,7 +40,7 @@ public class Servicios {
             return rec.Recarga();
 
         } else {
-            return "Telefono invalido " + Phone.substring(1, Phone.length() - 1);
+            return null;
         }
 
     }
@@ -47,7 +49,7 @@ public class Servicios {
      * Web service operation
      */
     @WebMethod(operationName = "PagoUno")
-    public String PagoUno(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account, @WebParam(name = "SubtotalAmount") String SubtotalAmount) {
+    public ApplyTransactionResponse PagoUno(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account, @WebParam(name = "SubtotalAmount") String SubtotalAmount) {
 
         PagoUno pu = new PagoUno();
         pu.setConceptCode(ConceptCode.substring(1, ConceptCode.length() - 1));
@@ -65,7 +67,7 @@ public class Servicios {
      * Web service operation
      */
     @WebMethod(operationName = "PagoDos")
-    public String PagoDos(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account, @WebParam(name = "SubtotalAmount") String SubtotalAmount, @WebParam(name = "DV") String DV) {
+    public ApplyTransactionResponse PagoDos(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account, @WebParam(name = "SubtotalAmount") String SubtotalAmount, @WebParam(name = "DV") String DV) {
 
         PagoDos pd = new PagoDos();
         pd.setConceptCode(ConceptCode.substring(1, ConceptCode.length() - 1));
@@ -84,10 +86,9 @@ public class Servicios {
      * Web service operation
      */
     @WebMethod(operationName = "ConsultaServicios")
-    public String ConsultaServicios(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account) {
+    public AccountBalanceQueryResponse ConsultaServicios(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account) {
 
         Controller consulta = new Controller();
-        consulta.Consulta(ConceptCode, Account);
-        return consulta.Consulta(ConceptCode, Account);
+        return consulta.Consulta(ConceptCode.substring(1, ConceptCode.length() - 1), Account.substring(1, Account.length() - 1));
     }
 }

@@ -7,7 +7,7 @@ import POJOS.PagoDos;
 import POJOS.PagoUno;
 import POJOS.Recargas;
 import com.epagoinc.client.ApiClient;
-import com.epagoinc.client.Globals;
+import com.epagoinc.clientswitchaccountbalanceservice.AccountBalanceQueryResponse;
 import com.epagoinc.clientswitchtransactionservicev2.ApplyTransactionResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -17,7 +17,7 @@ public class Controller {
     private Recargas r;
     private PagoUno pu;
     private PagoDos pd;
-    
+    ApiClient client = new ApiClient();
 
     public Controller() {
     }
@@ -34,23 +34,23 @@ public class Controller {
         pd = pagoDos;
     }
 
-    public String Recarga() throws IOException {
+    public ApplyTransactionResponse Recarga() throws IOException {
         return NuevaRecarga(r);
     }
 
-    public String PagoUno() {
+    public ApplyTransactionResponse PagoUno() {
         return NuevoPagoUno(pu);
     }
 
-    public String PagoDos() {
+    public ApplyTransactionResponse PagoDos() {
         return NuevoPagoDos(pd);
     }
     
-    public String Consulta(String ConceptCode,String Account) {
+    public AccountBalanceQueryResponse Consulta(String ConceptCode,String Account) {
         return ConsultarSaldo(ConceptCode,Account);
     }
 
-    private String NuevaRecarga(Recargas recarga) throws IOException {
+    private ApplyTransactionResponse NuevaRecarga(Recargas recarga) throws IOException {
 
         //Declaración de variables
         String mensaje = null;
@@ -71,7 +71,7 @@ public class Controller {
        
         try {
             //Realizamos la transacción
-            ApiClient client = new ApiClient();
+           
             t = client.executeTransaction(conceptCode, account, subTotalAmount, null);
 
             //Realizamos la actualización del folio y el estatus
@@ -98,10 +98,10 @@ public class Controller {
             mensaje = "Error de transacción";
         }
 
-        return mensaje;
+        return t;
     }
 
-    private String NuevoPagoUno(PagoUno pagouno) {
+    private ApplyTransactionResponse NuevoPagoUno(PagoUno pagouno) {
 
         //Declaración de variables
         String mensaje;
@@ -122,7 +122,7 @@ public class Controller {
         
         try {
             //Realizamos la transacción
-            ApiClient client = new ApiClient();
+           
             t = client.executeTransaction(conceptCode, account, subTotalAmount, null);
 
             //Realizamos la actualización del folio y el estatus
@@ -139,11 +139,11 @@ public class Controller {
             mensaje = "Error de transacción";
         }
 
-        return mensaje;
+        return t;
 
     }
 
-    private String NuevoPagoDos(PagoDos pagodos) {
+    private ApplyTransactionResponse NuevoPagoDos(PagoDos pagodos) {
 
         //Declaración de variables
         String mensaje;
@@ -153,7 +153,6 @@ public class Controller {
         String conceptCode =  pagodos.getConceptCode();
         String account =  pagodos.getPhone();
         String DV = pagodos.getDv();
-        System.out.println("********"+conceptCode+"**"+account+"**"+subTotalAmount+"**"+DV+"********");
         try {
             //Creamos objeto tipo recarga con los datos del WS
             
@@ -167,7 +166,7 @@ public class Controller {
 
         try {
             //Realizamos la transacción
-            ApiClient client = new ApiClient();
+           
             t = client.executeTransaction(conceptCode, account, subTotalAmount, DV);
 
             //Realizamos la actualización del folio y el estatus
@@ -184,17 +183,15 @@ public class Controller {
             mensaje = "Error de transacción";
         }
 
-        return mensaje;
+        return t;
 
     }
     
-    private String ConsultarSaldo(String ConceptCode, String Account)
+    private AccountBalanceQueryResponse ConsultarSaldo(String ConceptCode, String Account)
     {
         
-        
-        
-        
-        return null;
+        AccountBalanceQueryResponse ABQR=new AccountBalanceQueryResponse();
+        return ABQR=client.executeAccountBalanceQuery(ConceptCode, Account);
     }
 
 }

@@ -1,15 +1,30 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.epagoinc.client;
-
+  
+import com.epagoinc.clientcatalogqueryservice.Agent;
+import com.epagoinc.clientcatalogqueryservice.AgentBranch;
+import com.epagoinc.clientcatalogqueryservice.AgentCategory;
+import com.epagoinc.clientcatalogqueryservice.AgentCategoryConcept;
+import com.epagoinc.clientcatalogqueryservice.Bank;
+import com.epagoinc.clientcatalogqueryservice.BankAccount;
+import com.epagoinc.clientcatalogqueryservice.ConceptData;
+import com.epagoinc.clientcatalogqueryservice.ExecuteCatalogQueryRequest;
+import com.epagoinc.clientcatalogqueryservice.ExecuteCatalogQueryResponse;
 import com.epagoinc.clientswitchaccountbalanceservice.AccountBalanceQueryRequest;
 import com.epagoinc.clientswitchaccountbalanceservice.AccountBalanceQueryResponse;
 import com.epagoinc.clientswitchaccountbalanceservice.ArrayOfReferenceCollectionReferenceReference;
+import com.epagoinc.clientswitchdepositnotificationservice.AgentBalanceQueryRequest;
+import com.epagoinc.clientswitchdepositnotificationservice.AgentBalanceQueryResponse;
+import com.epagoinc.clientswitchdepositnotificationservice.AgentDeposit;
+import com.epagoinc.clientswitchdepositnotificationservice.AgentPendingDepositsRequest;
+import com.epagoinc.clientswitchdepositnotificationservice.AgentPendingDepositsResponse;
+import com.epagoinc.clientswitchdepositnotificationservice.NotifyDepositRequest;
+import com.epagoinc.clientswitchdepositnotificationservice.NotifyDepositResponse;
+import com.epagoinc.clientswitchdepositnotificationservice.VoidNotificationRequest;
+import com.epagoinc.clientswitchdepositnotificationservice.VoidNotificationResponse;
 import com.epagoinc.clientswitchtransactionservicev2.ApplyTransactionRequest;
 import com.epagoinc.clientswitchtransactionservicev2.ApplyTransactionResponse;
+import com.epagoinc.clientswitchtransactionservicev2.ApplyVoidTransactionRequest;
+import com.epagoinc.clientswitchtransactionservicev2.ApplyVoidTransactionResponse;
 import com.epagoinc.clientswitchtransactionservicev2.CapturedReference;
 import com.epagoinc.clientswitchtransactionservicev2.PaymentConcept;
 import com.epagoinc.clientswitchtransactionservicev2.PaymentMethod;
@@ -18,11 +33,15 @@ import com.epagoinc.clientswitchtransactionservicev2.PrepareTransactionRequest;
 import com.epagoinc.clientswitchtransactionservicev2.PrepareTransactionResponse;
 import com.epagoinc.clientswitchtransactionservicev2.PrintReference;
 import com.epagoinc.clientswitchtransactionservicev2.TransactionPaymentMethod;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.TimeZone;
 import java.util.UUID;
 import org.joda.time.DateTime;
@@ -162,7 +181,7 @@ public class ApiClient {
             tran.setConceptCode(paymentConcept.getConceptCode());// for ApplyTransaction.cs usage next
             tran.setEPagoTransactionId(response.getEPagoTransactionId()); // For ApplayTransaction.cs
             tran.setTotalAmount(response.getTotalAmount());  // For ApplayTransaction.cs
-            
+
             System.out.print("\n\n            ApplyTransaction");
             /*Globals.ReferenceNames.add(reference.getName());
             Globals.ReferenceLabels.put(reference.getName(), reference.getLabel());
@@ -196,12 +215,11 @@ public class ApiClient {
                 capturedReferences = new CapturedReference[1];
                 capturedReferences[0] = new CapturedReference("DV", DV);
             }
-            
-            System.out.print("\n\n            ApplyTransaction:" + tran.getClientSwitchTransactionId() + "/" +  clientSwitchTransactionDate + " / " + tran.getEPagoTransactionId() + "/" + tran.getConceptCode() + " / " + tran.getTotalAmount() + " / " + Arrays.toString(paymentBreakdown) + " / " + Arrays.toString(capturedReferences));
 
             //ClientSwitchTransactionServiceV2 client2 = new ClientSwitchTransactionServiceV2(Globals.auth);
+            System.out.print("\n\n            ApplyTransaction:" + tran.getClientSwitchTransactionId() + "/" + clientSwitchTransactionDate + " / " + tran.getEPagoTransactionId() + "/" + tran.getConceptCode() + " / " + tran.getTotalAmount() + " / " + Arrays.toString(paymentBreakdown) + " / " + Arrays.toString(capturedReferences));
             ApplyTransactionRequest request2 = new ApplyTransactionRequest(tran.getClientSwitchTransactionId(), clientSwitchTransactionDate, tran.getEPagoTransactionId(), tran.getConceptCode(), tran.getTotalAmount(), paymentBreakdown, capturedReferences);
-            
+
             /* Read the initial time. */
             DateTime startTime2 = new DateTime();
 
@@ -255,14 +273,496 @@ public class ApiClient {
 
                 System.out.print("\n\n       account: " + response2.getAccount());
             }
-            
-        }
-        
-        else{
+
+        } else {
             response2 = new ApplyTransactionResponse();
             response2.setStatusCode(response.getStatusCode());
             response2.setStatusMessage(response.getStatusMessage());
         }
         return response2;
     }
+
+    public AgentBalanceQueryResponse executeAgentBalanceQuery() {
+        ClientSwitchDepositNotificationService client = new ClientSwitchDepositNotificationService(Globals.auth);
+        AgentBalanceQueryRequest request = new AgentBalanceQueryRequest();
+        AgentBalanceQueryResponse response = null;
+
+        /* Read the initial time. */
+        DateTime startTime = new DateTime();
+
+        try {
+            response = client.agentBalanceQuery(request);
+        } catch (RemoteException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+        /* Read the end time. */
+        DateTime stopTime = new DateTime();
+
+        /* Compute the duration between the initial and the end time. */
+        Period duration = new Period(startTime, stopTime);
+
+        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .printZeroIfSupported()
+                .minimumPrintedDigits(2)
+                .appendHours()
+                .appendSeparator(":")
+                .minimumPrintedDigits(2)
+                .appendMinutes()
+                .appendSeparator(":")
+                .minimumPrintedDigits(2)
+                .appendSeconds()
+                .appendSeparator(".")
+                .appendMillis()
+                .toFormatter();
+
+        String elapsed = formatter.print(duration);
+
+        System.out.print("\n        Response Time: " + elapsed);
+        System.out.print("\n           statusCode: " + response.getStatusCode());
+        System.out.print("\n        statusMessage: " + response.getStatusMessage());
+
+        if (response.getStatusCode() == 0) {
+            System.out.print("\n-------------------------------------------------------------------------------");
+            System.out.print("\n       currentBalance: " + response.getCurrentBalance());
+            System.out.print("\n           dueBalance: " + response.getDueBalance());
+            System.out.print("\n           minPayment: " + response.getMinPayment());
+            System.out.print("\npendingDepositsAmount: " + response.getPendingDepositsAmount());
+        }
+
+        return response;
+
+    }
+
+    public AgentPendingDepositsResponse executeAgentPendingDeposits() {
+        ClientSwitchDepositNotificationService client = new ClientSwitchDepositNotificationService(Globals.auth);
+        AgentPendingDepositsRequest request = new AgentPendingDepositsRequest();
+        AgentPendingDepositsResponse response = null;
+
+        /* Read the start time. */
+        DateTime startTime = new DateTime();
+
+        try {
+            response = client.agentPendingDeposits(request);
+        } catch (RemoteException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+        /* Read the end time. */
+        DateTime stopTime = new DateTime();
+
+        /* Compute the duration between the initial and the end time. */
+        Period duration = new Period(startTime, stopTime);
+
+        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .printZeroIfSupported()
+                .minimumPrintedDigits(2)
+                .appendHours()
+                .appendSeparator(":")
+                .minimumPrintedDigits(2)
+                .appendMinutes()
+                .appendSeparator(":")
+                .minimumPrintedDigits(2)
+                .appendSeconds()
+                .appendSeparator(".")
+                .appendMillis()
+                .toFormatter();
+
+        String elapsed = formatter.print(duration);
+
+        System.out.print("\n              Response Time: " + elapsed);
+        System.out.print("\n                 statusCode: " + response.getStatusCode());
+        System.out.print("\n              statusMessage: " + response.getStatusMessage());
+
+        if (response.getStatusCode() == 0) {
+
+            System.out.print("\n-------------------------------------------------------------------------------");
+
+            // pendingDeposits
+            System.out.print("\n<pendingDeposits>");
+            for (AgentDeposit pendingDeposit : response.getPendingDeposits()) {
+                System.out.print("\n\n    <agentDeposit>");
+                System.out.print("\n       clientNotificationId: " + pendingDeposit.getClientNotificationId());
+                System.out.print("\n        ePagoNotificationId: " + pendingDeposit.getEPagoNotificationId());
+                System.out.print("\n                  bank code: " + pendingDeposit.getBank().getCode());
+                System.out.print("\n                  bank name: " + pendingDeposit.getBank().getName());
+                System.out.print("\n           bank routeNumber: " + pendingDeposit.getBank().getRouteNumber());
+                System.out.print("\n                     amount: " + pendingDeposit.getAmount());
+                System.out.print("\n                  reference: " + pendingDeposit.getReference());
+            }
+        }
+        return response;
+    }
+
+    public ExecuteCatalogQueryResponse executeCatalogQuery() {
+        ClientCatalogQuery client = new ClientCatalogQuery(Globals.auth);
+        ExecuteCatalogQueryRequest request = new ExecuteCatalogQueryRequest();
+        ExecuteCatalogQueryResponse response = null;
+
+        /* Read the initial time. */
+        DateTime startTime = new DateTime();
+
+        try {
+            response = client.executeCatalogQuery(request);
+        } catch (RemoteException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+        /* Read the end time. */
+        DateTime stopTime = new DateTime();
+
+        /* Compute the duration between the initial and the end time. */
+        Period duration = new Period(startTime, stopTime);
+
+        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .printZeroIfSupported()
+                .minimumPrintedDigits(2)
+                .appendHours()
+                .appendSeparator(":")
+                .minimumPrintedDigits(2)
+                .appendMinutes()
+                .appendSeparator(":")
+                .minimumPrintedDigits(2)
+                .appendSeconds()
+                .appendSeparator(".")
+                .appendMillis()
+                .toFormatter();
+
+        String elapsed = formatter.print(duration);
+
+        System.out.print("\n            Response Time: " + elapsed);
+        System.out.print("\n               statusCode: " + response.getStatusCode());
+        System.out.print("\n            statusMessage: " + response.getStatusMessage());
+
+        //Globals.JustDidSuccessfulQuery = false;
+        if (response.getStatusCode() == 0) {
+
+            System.out.print("\n-------------------------------------------------------------------------------");
+
+            // concepts
+            System.out.print("\n\n<concept>");
+
+            Globals.MaximumNumberOfAvailableConcepts = 0;
+            Globals.AvailableConceptCodes.clear();
+            Globals.AvailableConceptShortNames.clear();
+            Globals.AvailableConceptsThatHaveQuery.clear();
+
+            for (ConceptData concept : response.getConcepts()) {
+                System.out.print("\n\n   conceptCategory: " + concept.getConceptCategory());
+                System.out.print("\n       conceptCode: " + concept.getConceptCode());
+                System.out.print("\n       conceptName: " + concept.getConceptName());
+                System.out.print("\n  conceptShortName: " + concept.getConceptShortName());
+                System.out.print("\n     defaultAmount: " + concept.getDefaultAmount());
+                System.out.print("\n        hasBarCode: " + concept.isHasBarCode());
+                System.out.print("\n          hasQuery: " + concept.isHasQuery());
+                System.out.print("\n   providerMessage: " + concept.getProviderMessage());
+                System.out.print("\n    readOnlyAmount: " + concept.isReadOnlyAmount());
+                System.out.print("\n   requireQuantity: " + concept.isRequireQuantity());
+
+                Globals.AvailableConceptCodes.add(concept.getConceptCode());
+                Globals.AvailableConceptShortNames.add(concept.getConceptShortName());
+                Globals.AvailableConceptsThatHaveQuery.put(concept.getConceptCode(), concept.isHasQuery());
+                Globals.MaximumNumberOfAvailableConcepts++;
+            }
+
+            // agentCategories
+            System.out.print("\n\n<agentCategory>");
+            for (AgentCategory agentCategory : response.getAgentCategories()) {
+                System.out.print("\n\n  code: " + agentCategory.getCode());
+                System.out.print("\n  name: " + agentCategory.getName());
+
+                System.out.print("\n\n  <availableConcept>\n");
+
+                for (AgentCategoryConcept availableConcept : agentCategory.getAvailableConcepts()) {
+                    System.out.print("\n     conceptCode: " + availableConcept.getConceptCode());
+                }
+            }
+
+            // agents
+            System.out.print("\n\n<agent>");
+            for (Agent agent : response.getAgents()) {
+                System.out.print("\n\n          categoryCode: " + agent.getCategoryCode());
+                System.out.print("\n                  code: " + agent.getCode());
+                System.out.print("\n  geoPoliticalLocation: " + agent.getGeoPoliticalLocation());
+                System.out.print("\n          categoryCode: " + agent.getName());
+                System.out.print("\n          neighborhood: " + agent.getNeighborhood());
+                System.out.print("\n                street: " + agent.getStreet());
+            }
+
+            // agentBranches
+            System.out.print("\n\n<agentBranch>");
+
+            for (AgentBranch agentBranch : response.getAgentBranches()) {
+                System.out.print("\n\n               address: " + agentBranch.getAddress());
+                System.out.print("\n             agentCode: " + agentBranch.getAgentCode());
+                System.out.print("\n                  code: " + agentBranch.getCode());
+                System.out.print("\n  geoPoliticalLocation: " + agentBranch.getGeoPoliticalLocation());
+                System.out.print("\n                  name: " + agentBranch.getName());
+
+            }
+
+            // banks
+            System.out.print("\n\n<bank>");
+
+            for (Bank bank : response.getBanks()) {
+                System.out.print("\n\n         code: " + bank.getCode());
+                System.out.print("\n         name: " + bank.getName());
+                System.out.print("\n  routeNumber: " + bank.getRouteNumber());
+            }
+
+            // bankAccounts
+            System.out.print("\n\n<bankAccount>");
+
+            Globals.MaximumNumberOfBankAccounts = 0;
+            for (BankAccount bankAccount : response.getBankAccounts()) {
+                System.out.print("\n\n  accountNumber: " + bankAccount.getAccountNumber());
+                System.out.print("\n       bankCode: " + bankAccount.getBankCode());
+
+                Globals.AccountNumbers.add(bankAccount.getAccountNumber());
+                Globals.BankCodes.add(bankAccount.getBankCode());
+
+                Globals.MaximumNumberOfBankAccounts++;
+            }
+
+        }
+        return response;
+    }
+
+    public ApplyVoidTransactionResponse executeApplyVoidTransaction(String ClientSwitchTransactionId, String EPagoTransactionId) {
+        String clientSwitchVoidTransactionId = UUID.randomUUID().toString().toUpperCase();
+        System.out.print("\n    clientSwitchVoidTransactionId: " + clientSwitchVoidTransactionId);
+        System.out.print("\noriginalClientSwitchTransactionId: " + ClientSwitchTransactionId);
+        System.out.print("\n       originalEPagoTransactionId: " + EPagoTransactionId);
+
+        Calendar clientSwitchVoidTransactionDate = Calendar.getInstance();            // Get the current time
+
+        // The following three lines are to format strDate for printout purposes only
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        f.setTimeZone(TimeZone.getTimeZone("GMT-5"));
+        String strDate = f.format(clientSwitchVoidTransactionDate.getTime());
+
+        System.out.print("\n  clientSwitchVoidTransactionDate: " + strDate);
+
+        String remarks = "Error del ?";
+
+        System.out.print("\n                          remarks: " + remarks);
+
+        ClientSwitchTransactionServiceV2 client = new ClientSwitchTransactionServiceV2(Globals.auth);
+        ApplyVoidTransactionRequest request;
+        request = new ApplyVoidTransactionRequest(
+                clientSwitchVoidTransactionId,
+                ClientSwitchTransactionId,
+                EPagoTransactionId,
+                clientSwitchVoidTransactionDate,
+                remarks
+        );
+        ApplyVoidTransactionResponse response = null;
+
+        // Read the initial time. 
+        DateTime startTime = new DateTime();
+
+        try {
+            response = client.applyVoidTransaction(request);
+        } catch (RemoteException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+        //Read the end time. 
+        DateTime stopTime = new DateTime();
+
+        //Compute the duration between the initial and the end time. 
+        Period duration = new Period(startTime, stopTime);
+
+        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .printZeroIfSupported()
+                .minimumPrintedDigits(2)
+                .appendHours()
+                .appendSeparator(":")
+                .minimumPrintedDigits(2)
+                .appendMinutes()
+                .appendSeparator(":")
+                .minimumPrintedDigits(2)
+                .appendSeconds()
+                .appendSeparator(".")
+                .appendMillis()
+                .toFormatter();
+
+        String elapsed = formatter.print(duration);
+
+        System.out.print("\n\n                    Response Time: " + elapsed);
+        System.out.print("\n                       statusCode: " + response.getStatusCode());
+        System.out.print("\n                    statusMessage: " + response.getStatusMessage());
+
+        return response;
+    }
+
+    public NotifyDepositResponse executeNotifyDeposit() {
+        String clientSwitchNotificationId = UUID.randomUUID().toString().toUpperCase();
+
+        //Globals.ClientSwitchNotificationId = clientSwitchNotificationId; // for ExecuteVoidNotification.java usage
+        System.out.print("\n  clientSwitchNotificationId: " + clientSwitchNotificationId);
+
+        // The following four lines are to format strDate for printout purposes only
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        f.setTimeZone(TimeZone.getTimeZone("GMT-5"));
+        Calendar clientSwitchNotificationDate = Calendar.getInstance();            // Get the current time
+        String strDate = f.format(clientSwitchNotificationDate.getTime());
+
+        System.out.print("\nclientSwitchNotificationDate: " + strDate);
+
+        int maxElement = Globals.MaximumNumberOfBankAccounts;
+        Random random = new Random();
+        int rInt = random.nextInt(maxElement);
+
+        String accountNumber = Globals.AccountNumbers.get(rInt);
+        String bankCode = Globals.BankCodes.get(rInt);
+
+        System.out.print("\n               accountNumber: " + accountNumber);
+        System.out.print("\n                    bankCode: " + bankCode);
+
+        String reference = "";
+
+        for (int i = 0; i < 10; i++) {
+            reference = String.format("%d", random.nextInt(9)).concat(reference);
+        }
+
+        System.out.print("\n                   reference: " + reference);
+
+        System.out.print("\n                      amount: ");
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String inputBuffer = null;
+        try {
+            inputBuffer = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        BigDecimal amount = null;
+        try {
+            amount = new BigDecimal(inputBuffer);
+        } catch (Exception e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+        ClientSwitchDepositNotificationService client = new ClientSwitchDepositNotificationService(Globals.auth);
+        NotifyDepositRequest request = new NotifyDepositRequest(
+                clientSwitchNotificationId,
+                clientSwitchNotificationDate,
+                amount,
+                accountNumber,
+                bankCode,
+                reference);
+        NotifyDepositResponse response = null;
+
+        //Read the initial time. 
+        DateTime startTime = new DateTime();
+
+        try {
+            response = client.notifyDeposit(request);
+        } catch (RemoteException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+        //Read the end time. 
+        DateTime stopTime = new DateTime();
+
+        //Compute the duration between the initial and the end time. 
+        Period duration = new Period(startTime, stopTime);
+
+        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .printZeroIfSupported()
+                .minimumPrintedDigits(2)
+                .appendHours()
+                .appendSeparator(":")
+                .minimumPrintedDigits(2)
+                .appendMinutes()
+                .appendSeparator(":")
+                .minimumPrintedDigits(2)
+                .appendSeconds()
+                .appendSeparator(".")
+                .appendMillis()
+                .toFormatter();
+
+        //Compute the duration between the initial and the end time. 
+        String elapsed = formatter.print(duration);
+
+        System.out.print("\n               Response Time: " + elapsed);
+        System.out.print("\n                  statusCode: " + response.getStatusCode());
+        System.out.print("\n               statusMessage: " + response.getStatusmessage());
+
+        if (response.getStatusCode() == 0) {
+            System.out.print("\n-------------------------------------------------------------------------------");
+            System.out.print("\n         ePagoNotificationId: " + response.getEPagoNotificationId());
+
+            //Globals.ClientSwitchNotificationId = clientSwitchNotificationId;   // for VoidNotification.cs
+            //Globals.EPagoNotificationId = response.getEPagoNotificationId();                 // idem
+        }
+        return response;
+    }
+
+    public VoidNotificationResponse executeVoidNotificationResponse(String originalClientSwitchNotificationId, String originalEPagoNotificationId) throws RemoteException {
+
+        System.out.print("\noriginalclientSwitchNotificationId: " + originalClientSwitchNotificationId);
+        System.out.print("\n       originalEPagoNotificationId: " + originalEPagoNotificationId);
+
+        String clientSwitchVoidNotificationId = UUID.randomUUID().toString().toUpperCase();
+        System.out.print("\n    clientSwitchVoidNotificationId: " + clientSwitchVoidNotificationId);
+
+        // The following four lines are to format strDate for printout purposes only
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        f.setTimeZone(TimeZone.getTimeZone("GMT-5"));
+        Calendar clientSwitchVoidNotificationDate = Calendar.getInstance();            // Get the current time
+        String strDate = f.format(clientSwitchVoidNotificationDate.getTime());
+
+        System.out.print("\n  clientSwitchVoidNotificationDate: " + strDate);
+
+        String remarks = "Error del ?";
+
+        System.out.print("\n                           remarks: " + remarks);
+
+        ClientSwitchDepositNotificationService client = new ClientSwitchDepositNotificationService(Globals.auth);
+        VoidNotificationRequest request = new VoidNotificationRequest(
+                originalClientSwitchNotificationId,
+                originalEPagoNotificationId,
+                clientSwitchVoidNotificationId,
+                clientSwitchVoidNotificationDate,
+                remarks);
+
+        VoidNotificationResponse response = null;
+
+        //Read the start time. 
+        DateTime startTime = new DateTime();
+
+        response = client.voidNotification(request);
+
+        //Read the end time. 
+        DateTime stopTime = new DateTime();
+
+        //Compute the duration between the initial and the end time. 
+        Period duration = new Period(startTime, stopTime);
+
+        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .printZeroIfSupported()
+                .minimumPrintedDigits(2)
+                .appendHours()
+                .appendSeparator(":")
+                .minimumPrintedDigits(2)
+                .appendMinutes()
+                .appendSeparator(":")
+                .minimumPrintedDigits(2)
+                .appendSeconds()
+                .appendSeparator(".")
+                .appendMillis()
+                .toFormatter();
+
+        String elapsed = formatter.print(duration);
+
+        System.out.print("\n\n                     Response Time: " + elapsed);
+        System.out.print("\n                        statusCode: " + response.getStatusCode());
+        System.out.print("\n                     statusMessage: " + response.getStatusmessage());
+
+        return response;
+    }
+
 }
