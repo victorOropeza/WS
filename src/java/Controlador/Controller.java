@@ -52,32 +52,32 @@ public class Controller {
 
     private ApplyTransactionResponse NuevaRecarga(Recargas recarga) throws IOException {
 
-        //Declaración de variables
+        //---Declaración de variables
         String mensaje = null;
-        int Folio = 0;
-        ApplyTransactionResponse t = null;
+        int Folio = 0; //variable de almacenamiendo de folio de transaccion
+        ApplyTransactionResponse t = null; //declaracion del objeto para realizar la transaccion
+        //---
+        //---Parseo de variables
         BigDecimal subTotalAmount = new BigDecimal(recarga.getSubtotalAmount());
         String conceptCode = recarga.getConceptCode();
         String account = recarga.getPhone();
+        //---
         
+        //---Almacenamiento en BD
         try {
-            //Creamos objeto tipo recarga con los datos del WS
-            RecargasDAO RDAO = new RecargasDAO();
-            Folio = Integer.valueOf(RDAO.IngresarRecarga(recarga));
+            RecargasDAO RDAO = new RecargasDAO(); //Creamos objeto tipo recarga con los datos del WS
+            Folio = Integer.valueOf(RDAO.IngresarRecarga(recarga)); //Almacenamos la recarga y solicitamos el folio
         } catch (Exception e0) {
             mensaje = "Error de almacenamiento";
         }
+        //---
 
-       
+        //---Ejecutamos la transacción
         try {
-            //Realizamos la transacción
-           
-            t = client.executeTransaction(conceptCode, account, subTotalAmount, null);
+            t = client.executeTransaction(conceptCode, account, subTotalAmount, null); //Realizamos la transacción
 
-            //Realizamos la actualización del folio y el estatus
+            //---Realizamos la actualización del folio y el estatus
             RecargasDAO RDAO = new RecargasDAO();
-            
-
             try {
                 if (t.getStatusCode() == 0) {
                     RDAO.Actualizar(recarga, Folio, t.getEPagoTransactionId(), "Exito");
@@ -91,15 +91,19 @@ public class Controller {
             } catch (Exception e4) {
                 e4.printStackTrace();
             }
+            //---
 
            
         } catch (Exception e2) {
             e2.printStackTrace();
             mensaje = "Error de transacción";
         }
+        //---
 
         return t;
     }
+    
+    
 
     private ApplyTransactionResponse NuevoPagoUno(PagoUno pagouno) {
 
@@ -151,7 +155,7 @@ public class Controller {
         ApplyTransactionResponse t = null;
         BigDecimal subTotalAmount = new BigDecimal(pagodos.getSubtotalAmount());
         String conceptCode =  pagodos.getConceptCode();
-        String account =  pagodos.getPhone();
+        String account =  pagodos.getAccount();
         String DV = pagodos.getDv();
         try {
             //Creamos objeto tipo recarga con los datos del WS

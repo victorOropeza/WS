@@ -6,8 +6,8 @@
     <property name="hibernate.connection.url">jdbc:sqlserver://127.0.0.1\MSSQLSERVER:1433;databaseName=ServiciosEpago</property>
     <property name="hibernate.connection.username">sa</property>
     <property name="hibernate.connection.password">taurus</property>
-    <mapping resource="POJOS/Recargas.hbm.xml"/>
     <mapping resource="POJOS/PagoUno.hbm.xml"/>
     <mapping resource="POJOS/PagoDos.hbm.xml"/>
+    <mapping resource="POJOS/Recargas.hbm.xml"/>
   </session-factory>
 </hibernate-configuration>

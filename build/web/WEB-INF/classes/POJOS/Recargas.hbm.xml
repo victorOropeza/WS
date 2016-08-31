@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<!-- Generated 25-ago-2016 12:10:21 by Hibernate Tools 3.6.0 -->
+<!-- Generated 31-ago-2016 10:38:16 by Hibernate Tools 3.6.0 -->
 <hibernate-mapping>
     <class name="POJOS.Recargas" table="recargas" schema="dbo" catalog="ServiciosEpago">
         <id name="id" type="int">
@@ -22,6 +22,9 @@
         </property>
         <property name="estatus" type="string">
             <column name="estatus" length="50" />
+        </property>
+        <property name="terminal" type="string">
+            <column name="terminal" length="50" />
         </property>
     </class>
 </hibernate-mapping>

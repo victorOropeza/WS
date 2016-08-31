@@ -1,7 +1,7 @@
 package Vista;
 
 import Controlador.Controller;
-import Modelo.ValidacionDeTelefono;
+import Modelo.Validaciones;
 import POJOS.PagoDos;
 import POJOS.PagoUno;
 import POJOS.Recargas;
@@ -23,12 +23,15 @@ public class Servicios {
      * Web service operation
      */
     @WebMethod(operationName = "Recarga")
-    public ApplyTransactionResponse Recarga(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Phone") String Phone, @WebParam(name = "SubtotalAmount") String SubtotalAmount) throws IOException {
+    public ApplyTransactionResponse Recarga(@WebParam(name = "ID_terminal") String IDTerminal,@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Phone") String Phone, @WebParam(name = "SubtotalAmount") String SubtotalAmount) throws IOException {
 
-        ValidacionDeTelefono validar = new ValidacionDeTelefono();
-        if (validar.VerificarNumero(Phone.substring(1, Phone.length() - 1))) {
+        //---Realizamos las validaciones de telefono y terminal
+        Validaciones validar = new Validaciones();
+        if (validar.VerificarNumero(Phone.substring(1, Phone.length() - 1)) && 
+            validar.VerificarTerminal(IDTerminal.substring(1, IDTerminal.length() - 1))) {
 
             Recargas recarga = new Recargas();
+            recarga.setTerminal(IDTerminal.substring(1, IDTerminal.length() - 1));
             recarga.setConceptCode(ConceptCode.substring(1, ConceptCode.length() - 1));
             recarga.setPhone(Phone.substring(1, Phone.length() - 1));
             recarga.setSubtotalAmount(SubtotalAmount.substring(1, SubtotalAmount.length() - 1));
@@ -42,6 +45,7 @@ public class Servicios {
         } else {
             return null;
         }
+        //---
 
     }
 
@@ -49,46 +53,71 @@ public class Servicios {
      * Web service operation
      */
     @WebMethod(operationName = "PagoUno")
-    public ApplyTransactionResponse PagoUno(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account, @WebParam(name = "SubtotalAmount") String SubtotalAmount) {
+    public ApplyTransactionResponse PagoUno(@WebParam(name = "ID_terminal") String IDTerminal,@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account, @WebParam(name = "SubtotalAmount") String SubtotalAmount) {
 
-        PagoUno pu = new PagoUno();
-        pu.setConceptCode(ConceptCode.substring(1, ConceptCode.length() - 1));
-        pu.setAccount(Account.substring(1, Account.length() - 1));
-        pu.setSubtotalAmount(SubtotalAmount.substring(1, SubtotalAmount.length() - 1));
-        pu.setEstatus("Pendiente");
-        pu.setFolio("N/A");
+        Validaciones validar = new Validaciones();
+        if (validar.VerificarTerminal(IDTerminal.substring(1, IDTerminal.length() - 1))) {
+        
+            PagoUno pu = new PagoUno();
+            pu.setTerminal(IDTerminal.substring(1, IDTerminal.length() - 1));
+            pu.setConceptCode(ConceptCode.substring(1, ConceptCode.length() - 1));
+            pu.setAccount(Account.substring(1, Account.length() - 1));
+            pu.setSubtotalAmount(SubtotalAmount.substring(1, SubtotalAmount.length() - 1));
+            pu.setEstatus("Pendiente");
+            pu.setFolio("N/A");
 
-        Controller c = new Controller(pu);
+            Controller c = new Controller(pu);
 
-        return c.PagoUno();
+            return c.PagoUno();
+        }
+        else
+        {
+            return null;
+        }
     }
 
     /**
      * Web service operation
      */
     @WebMethod(operationName = "PagoDos")
-    public ApplyTransactionResponse PagoDos(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account, @WebParam(name = "SubtotalAmount") String SubtotalAmount, @WebParam(name = "DV") String DV) {
+    public ApplyTransactionResponse PagoDos(@WebParam(name = "ID_terminal") String IDTerminal,@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account, @WebParam(name = "SubtotalAmount") String SubtotalAmount, @WebParam(name = "DV") String DV) {
 
-        PagoDos pd = new PagoDos();
-        pd.setConceptCode(ConceptCode.substring(1, ConceptCode.length() - 1));
-        pd.setPhone(Account.substring(1, Account.length() - 1));
-        pd.setSubtotalAmount(SubtotalAmount.substring(1, SubtotalAmount.length() - 1));
-        pd.setDv(DV.substring(1, DV.length() - 1));
-        pd.setEstatus("Pendiente");
-        pd.setFolio("N/A");
+         Validaciones validar = new Validaciones();
+        if (validar.VerificarTerminal(IDTerminal.substring(1, IDTerminal.length() - 1))) {
+        
+            PagoDos pd = new PagoDos();
+            pd.setTerminal(IDTerminal.substring(1, IDTerminal.length() - 1));
+            pd.setConceptCode(ConceptCode.substring(1, ConceptCode.length() - 1));
+            pd.setAccount(Account.substring(1, Account.length() - 1));
+            pd.setSubtotalAmount(SubtotalAmount.substring(1, SubtotalAmount.length() - 1));
+            pd.setDv(DV.substring(1, DV.length() - 1));
+            pd.setEstatus("Pendiente");
+            pd.setFolio("N/A");
 
-        Controller c = new Controller(pd);
+            Controller c = new Controller(pd);
 
-        return c.PagoDos();
+            return c.PagoDos();
+        }
+        else
+        {
+            return null;
+        }
     }
 
     /**
      * Web service operation
      */
     @WebMethod(operationName = "ConsultaServicios")
-    public AccountBalanceQueryResponse ConsultaServicios(@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account) {
+    public AccountBalanceQueryResponse ConsultaServicios(@WebParam(name = "ID_terminal") String IDTerminal,@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Account") String Account) {
 
-        Controller consulta = new Controller();
-        return consulta.Consulta(ConceptCode.substring(1, ConceptCode.length() - 1), Account.substring(1, Account.length() - 1));
+           Validaciones validar = new Validaciones();
+        if (validar.VerificarTerminal(IDTerminal.substring(1, IDTerminal.length() - 1))) {
+            Controller consulta = new Controller();
+            return consulta.Consulta(ConceptCode.substring(1, ConceptCode.length() - 1), Account.substring(1, Account.length() - 1));
+        }
+        else
+        {
+            return null;
+        }
     }
 }

@@ -1,5 +1,5 @@
 package POJOS;
-// Generated 25-ago-2016 12:10:21 by Hibernate Tools 3.6.0
+// Generated 31-ago-2016 10:38:15 by Hibernate Tools 3.6.0
 
 
 
@@ -15,6 +15,7 @@ public class PagoUno  implements java.io.Serializable {
      private String subtotalAmount;
      private String folio;
      private String estatus;
+     private String terminal;
 
     public PagoUno() {
     }
@@ -24,13 +25,14 @@ public class PagoUno  implements java.io.Serializable {
         this.id = id;
         this.conceptCode = conceptCode;
     }
-    public PagoUno(int id, String conceptCode, String account, String subtotalAmount, String folio, String estatus) {
+    public PagoUno(int id, String conceptCode, String account, String subtotalAmount, String folio, String estatus, String terminal) {
        this.id = id;
        this.conceptCode = conceptCode;
        this.account = account;
        this.subtotalAmount = subtotalAmount;
        this.folio = folio;
        this.estatus = estatus;
+       this.terminal = terminal;
     }
    
     public int getId() {
@@ -74,6 +76,13 @@ public class PagoUno  implements java.io.Serializable {
     
     public void setEstatus(String estatus) {
         this.estatus = estatus;
+    }
+    public String getTerminal() {
+        return this.terminal;
+    }
+    
+    public void setTerminal(String terminal) {
+        this.terminal = terminal;
     }
 
 

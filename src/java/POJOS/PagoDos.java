@@ -1,5 +1,5 @@
 package POJOS;
-// Generated 25-ago-2016 12:10:21 by Hibernate Tools 3.6.0
+// Generated 31-ago-2016 10:38:15 by Hibernate Tools 3.6.0
 
 
 
@@ -11,11 +11,12 @@ public class PagoDos  implements java.io.Serializable {
 
      private int id;
      private String conceptCode;
-     private String phone;
+     private String account;
      private String subtotalAmount;
      private String dv;
      private String folio;
      private String estatus;
+     private String terminal;
 
     public PagoDos() {
     }
@@ -25,14 +26,15 @@ public class PagoDos  implements java.io.Serializable {
         this.id = id;
         this.conceptCode = conceptCode;
     }
-    public PagoDos(int id, String conceptCode, String phone, String subtotalAmount, String dv, String folio, String estatus) {
+    public PagoDos(int id, String conceptCode, String account, String subtotalAmount, String dv, String folio, String estatus, String terminal) {
        this.id = id;
        this.conceptCode = conceptCode;
-       this.phone = phone;
+       this.account = account;
        this.subtotalAmount = subtotalAmount;
        this.dv = dv;
        this.folio = folio;
        this.estatus = estatus;
+       this.terminal = terminal;
     }
    
     public int getId() {
@@ -49,12 +51,12 @@ public class PagoDos  implements java.io.Serializable {
     public void setConceptCode(String conceptCode) {
         this.conceptCode = conceptCode;
     }
-    public String getPhone() {
-        return this.phone;
+    public String getAccount() {
+        return this.account;
     }
     
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setAccount(String account) {
+        this.account = account;
     }
     public String getSubtotalAmount() {
         return this.subtotalAmount;
@@ -83,6 +85,13 @@ public class PagoDos  implements java.io.Serializable {
     
     public void setEstatus(String estatus) {
         this.estatus = estatus;
+    }
+    public String getTerminal() {
+        return this.terminal;
+    }
+    
+    public void setTerminal(String terminal) {
+        this.terminal = terminal;
     }
 
 
