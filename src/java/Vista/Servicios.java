@@ -24,7 +24,8 @@ public class Servicios {
      */
     @WebMethod(operationName = "Recarga")
     public ApplyTransactionResponse Recarga(@WebParam(name = "ID_terminal") String IDTerminal,@WebParam(name = "ConceptCode") String ConceptCode, @WebParam(name = "Phone") String Phone, @WebParam(name = "SubtotalAmount") String SubtotalAmount) throws IOException {
-
+        
+        System.out.println(IDTerminal+" - "+ConceptCode+" - "+Phone+" - "+SubtotalAmount);
         //---Realizamos las validaciones de telefono y terminal
         Validaciones validar = new Validaciones();
         if (validar.VerificarNumero(Phone.substring(1, Phone.length() - 1)) && 
