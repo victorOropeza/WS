@@ -1,5 +1,10 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package com.epagoinc.client;
-  
+
 import com.epagoinc.clientcatalogqueryservice.Agent;
 import com.epagoinc.clientcatalogqueryservice.AgentBranch;
 import com.epagoinc.clientcatalogqueryservice.AgentCategory;
@@ -26,14 +31,17 @@ import com.epagoinc.clientswitchtransactionservicev2.ApplyTransactionResponse;
 import com.epagoinc.clientswitchtransactionservicev2.ApplyVoidTransactionRequest;
 import com.epagoinc.clientswitchtransactionservicev2.ApplyVoidTransactionResponse;
 import com.epagoinc.clientswitchtransactionservicev2.CapturedReference;
+import com.epagoinc.clientswitchtransactionservicev2.Charge;
 import com.epagoinc.clientswitchtransactionservicev2.PaymentConcept;
 import com.epagoinc.clientswitchtransactionservicev2.PaymentMethod;
 import com.epagoinc.clientswitchtransactionservicev2.PaymentMethodPaymentType;
 import com.epagoinc.clientswitchtransactionservicev2.PrepareTransactionRequest;
 import com.epagoinc.clientswitchtransactionservicev2.PrepareTransactionResponse;
 import com.epagoinc.clientswitchtransactionservicev2.PrintReference;
+import com.epagoinc.clientswitchtransactionservicev2.Tax;
 import com.epagoinc.clientswitchtransactionservicev2.TransactionPaymentMethod;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
@@ -41,6 +49,7 @@ import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -48,6 +57,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
+import resources.FileUtils;
 
 /**
  *
@@ -121,9 +131,9 @@ public class ApiClient {
         return response;
     }
 
-    public ApplyTransactionResponse executeTransaction(String conceptCode, String account, BigDecimal subTotalAmount, String DV) {
+    public ApplyTransactionResponse executeTransaction(String conceptCode, String account, BigDecimal subTotalAmount, String DV) throws IOException {
         String clientSwitchTransactionId = UUID.randomUUID().toString().toUpperCase();
-
+        String CR = "";
         tran.setClientSwitchTransactionId(clientSwitchTransactionId); // for ExecuteApplyTransaction.java usage
         System.out.println("\nclientSwitchTransactionId: " + clientSwitchTransactionId);
 
@@ -178,9 +188,10 @@ public class ApiClient {
 
         if (response.getStatusCode() == 0) {
             tran.setNewTransactionApplied(false);
-            tran.setConceptCode(paymentConcept.getConceptCode());// for ApplyTransaction.cs usage next
+            tran.setConceptCode(request.getConcept().getConceptCode());// for ApplyTransaction.cs usage next
             tran.setEPagoTransactionId(response.getEPagoTransactionId()); // For ApplayTransaction.cs
             tran.setTotalAmount(response.getTotalAmount());  // For ApplayTransaction.cs
+            tran.setAccount(account);
 
             System.out.print("\n\n            ApplyTransaction");
             /*Globals.ReferenceNames.add(reference.getName());
@@ -188,10 +199,11 @@ public class ApiClient {
             Globals.ReferenceTypes.put(reference.getName(), reference.getType());
             Globals.ReferenceCurrentValues.put(reference.getName(), reference.getCurrentValue());
             Globals.ReferenceDefaultValues.put(reference.getName(), reference.getDefaultValue());*/
-            SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+            SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
             f.setTimeZone(TimeZone.getTimeZone("GMT-5"));
             Calendar clientSwitchTransactionDate = Calendar.getInstance();            // Get the current time
             String strDate = f.format(clientSwitchTransactionDate.getTime());
+            String iDate = strDate;
             TransactionPaymentMethod paymentBreakdown[] = new TransactionPaymentMethod[]{
                 new TransactionPaymentMethod(
                 new PaymentMethod(
@@ -214,7 +226,12 @@ public class ApiClient {
             if (DV != null) {
                 capturedReferences = new CapturedReference[1];
                 capturedReferences[0] = new CapturedReference("DV", DV);
+                CR = FileUtils.pad(DV, 20, ' ');
+            } else {
+                CR = FileUtils.pad(CR, 20, ' ');
             }
+            System.out.println("CR: |" + CR + "|");
+//            System.out.println("Name: " + capturedReferences[0].getName() + "\nVal: " + capturedReferences[0].getValue());
 
             //ClientSwitchTransactionServiceV2 client2 = new ClientSwitchTransactionServiceV2(Globals.auth);
             System.out.print("\n\n            ApplyTransaction:" + tran.getClientSwitchTransactionId() + "/" + clientSwitchTransactionDate + " / " + tran.getEPagoTransactionId() + "/" + tran.getConceptCode() + " / " + tran.getTotalAmount() + " / " + Arrays.toString(paymentBreakdown) + " / " + Arrays.toString(capturedReferences));
@@ -261,6 +278,66 @@ public class ApiClient {
                 tran.setNewTransactionApplied(true);
 
                 System.out.print("\n\n<printReferences>");
+                String path;
+                String s;
+                String[] taxesS = new String[2];
+                Tax[] taxes = response.getTaxes();
+                String tax2A, tax2I;
+                Integer tax0 = 0, commision = 0;
+
+                if (taxes.length > 0) {
+                    tax0 = taxes[0].getAmount().multiply(new BigDecimal(100)).intValue();
+                    for (int k = 0; k < taxes.length; k++) {
+                        if (taxes[k].isIncluded()) {
+                            taxesS[k] = "1";
+                        } else {
+                            taxesS[k] = "0";
+                        }
+                    }
+                } else {
+                    taxesS[0] = "0";
+                    taxesS[1] = "0";
+                }
+
+                if (taxes.length > 1) {
+                    tax2A = String.valueOf(taxes[1].getAmount().multiply(new BigDecimal(100)).intValue());
+                    tax2I = taxesS[1];
+                } else {
+                    tax2A = "0";
+                    tax2I = "0";
+                }
+                String ch = "0";
+                if (response.getOtherCharges().length > 0) {
+                    ch = String.valueOf(response.getOtherCharges()[0].getAmount().multiply(new BigDecimal(100)).intValue());
+                }
+
+                if (response2.getCommissionAmount() != null) {
+                    commision = response2.getCommissionAmount().multiply(new BigDecimal(100)).intValue();
+                }
+
+                String cash = "CASH      P";
+                SimpleDateFormat f2 = new SimpleDateFormat("yyyyMMdd");
+                Calendar creationDate = Calendar.getInstance();            // Get the current time
+                String creatDate = f.format(creationDate.getTime());
+                String creatDateS = f2.format(creationDate.getTime());
+                //FileUtils.writeFile(path, header);
+                path = "./Files/CF" + creatDateS + ".txt";
+
+                File fi = new File(path);
+                if (fi.exists() && !fi.isDirectory()) {
+                    s = "\nDTL" + FileUtils.pad(tran.getConceptCode(), 10, ' ') + FileUtils.pad(tran.getAccount(), 20, ' ') + CR + "000" + tran.getEPagoTransactionId()
+                            + tran.getClientSwitchTransactionId() + iDate + strDate + FileUtils.padL(String.valueOf(tran.getTotalAmount().multiply(new BigDecimal(100)).intValue()), 12, '0')
+                            + FileUtils.padL(String.valueOf(tax0), 12, '0') + taxesS[0] + FileUtils.padL(String.valueOf(commision), 12, '0') + FileUtils.padL(ch, 12, '0') + FileUtils.padL(tax2A, 12, '0') + tax2I
+                            + cash;
+                    s = FileUtils.addBlanks(s, 13);
+                } else {
+                    String header = "HDRSTLMERC" + creatDate + "XXXSTL" + creatDateS + "1CF" + creatDateS;
+                    s = FileUtils.addBlanks(header, 214) + "\nBCH" + Globals.auth.getTerminalId() + "XXX   " + "000001" + FileUtils.addBlanks(Globals.branchname, 30 - Globals.branchname.length())
+                            + "000001" + iDate + strDate;
+                    s = FileUtils.addBlanks(s, 155);
+                }
+
+                FileUtils.writeFile(path, s);
 
                 for (PrintReference printReference : response2.getPrintReferences()) {
                     System.out.print("\n\n    <reference>");
@@ -268,6 +345,7 @@ public class ApiClient {
                     if ((printReference.getLabel().length() > 0) && (!"\n      ".equals(printReference.getLabel()))) {
                         System.out.print(printReference.getLabel());
                     }
+
                     System.out.print("\n         value: " + printReference.getValue());
                 }
 
@@ -763,6 +841,41 @@ public class ApiClient {
         System.out.print("\n                     statusMessage: " + response.getStatusmessage());
 
         return response;
+    }
+
+    public void closeCF(String path) throws Exception {
+        List<String> lines = FileUtils.readFileAsListOfStrings(path);
+        int paymentsCount = 0, paymentsTotal = 0, tax1Total = 0, commissionTotal = 0, chargesTotal = 0, tax2Total = 0, voidsCount = 0, voidsTotal = 0;
+        int batchesCount = 1, recordsCount = 1;
+     
+        String bfp = "\nBFP";
+        String trf = "\nTRF";
+
+        for (String s : lines) {
+            if (s.charAt(250) == 'P') {
+                paymentsCount++;
+                paymentsTotal += Integer.parseInt(s.substring(178, 189));
+                tax1Total += Integer.parseInt(s.substring(190, 201));
+                commissionTotal += Integer.parseInt(s.substring(203, 214));
+                chargesTotal += Integer.parseInt(s.substring(215, 226));
+                tax2Total += Integer.parseInt(s.substring(227, 238));
+            }
+        }
+
+        bfp = bfp + FileUtils.padL(String.valueOf(paymentsCount), 4, '0') + FileUtils.padL(String.valueOf(paymentsTotal), 12, '0') + 
+                FileUtils.padL(String.valueOf(tax1Total), 12, '0') + FileUtils.padL(String.valueOf(commissionTotal), 12, '0') + FileUtils.padL(String.valueOf(chargesTotal), 12, '0') + 
+                FileUtils.padL(String.valueOf(tax2Total), 12, '0') + FileUtils.padL(String.valueOf(voidsCount), 4, '0') + FileUtils.padL(String.valueOf(voidsTotal), 12, '0');
+        
+        bfp = bfp + FileUtils.addBlanks(bfp, 181);
+        
+        trf = trf + FileUtils.padL(String.valueOf(paymentsCount), 6, '0') + FileUtils.padL(String.valueOf(paymentsTotal), 12, '0') + 
+                FileUtils.padL(String.valueOf(tax1Total), 12, '0') + FileUtils.padL(String.valueOf(commissionTotal), 12, '0') + FileUtils.padL(String.valueOf(chargesTotal), 12, '0') + 
+                FileUtils.padL(String.valueOf(tax2Total), 12, '0') + FileUtils.padL(String.valueOf(voidsCount), 6, '0') + FileUtils.padL(String.valueOf(voidsTotal), 12, '0') + 
+                FileUtils.padL(String.valueOf(batchesCount), 6, '0') + FileUtils.padL(String.valueOf(recordsCount), 8, '0');;
+        
+        trf = trf + FileUtils.addBlanks(bfp, 163);
+        
+        FileUtils.writeFile(path, bfp + trf);
     }
 
 }

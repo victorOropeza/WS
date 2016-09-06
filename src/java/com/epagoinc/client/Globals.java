@@ -24,6 +24,7 @@ public class Globals {
 
     //public static boolean NewTransactionApplied = false;
     public static long startTime;
+    public static String branchname = "SAECV";
 
     public static int MaximumNumberOfAvailableConcepts = 0;
     public static int MaximumNumberOfBankAccounts = 0;
@@ -49,20 +50,14 @@ public class Globals {
 
     static {
         //load a properties file
-        //PropertiesLoader settings = new PropertiesLoader("/app.config.properties");
+        PropertiesLoader settings = new PropertiesLoader("app.config.properties");
         auth.setClientSwitchUser("agenerico");
         auth.setClientSwitchPassword("Prueba2015$");
         auth.setClientSwitchChannel("DEV001");
 
-        auth.setTerminalId("01000001");
+        auth.setTerminalId("00100001");
         auth.setTerminalDescription("Switch Concentrador: Cadena Comercial");
         auth.setCashierName("G-POS1");
-        
-        Globals.ClientCatalogQueryAddress = "https://c01.epagoonline.com/mx/AgentService2-R3/ClientCatalogQueryService.svc";
-        Globals.ClientSwitchDepositNotificationServiceAddress = "https://c01.epagoonline.com/mx/AgentService2-R3/ClientSwitchDepositNotificationService.svc";
-        Globals.ClientSwitchTransactionServiceAddress = "https://c01.epagoonline.com/mx/AgentService2-R3/ClientSwitchTransactionServiceV2.svc";
-        Globals.ClientSwitchAccountBalanceServiceAddress = "https://c01.epagoonline.com/mx/AgentService2-R3/ClientSwitchAccountBalanceService.svc";
-
     }
 
     public static String ClientCatalogQueryAddress;
@@ -77,8 +72,8 @@ public class Globals {
 
             try {
                 //load a properties file
-                //prop.load(new FileInputStream(file));
-                prop.load(Globals.class.getResourceAsStream(file));
+                prop.load(new FileInputStream(file));
+                //prop.load(Globals.class.getResourceAsStream(file));
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
